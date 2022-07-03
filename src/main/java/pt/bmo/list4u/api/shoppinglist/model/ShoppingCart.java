@@ -18,4 +18,12 @@ public class ShoppingCart {
     private boolean finished;
     private String country;
     private LocalDateTime createdAt;
+
+    public ShoppingCart(String name, List<ItemCart> items, boolean finished, String country, LocalDateTime createdAt) {
+        this.name = name;
+        this.items = items;
+        this.finished = finished;
+        this.country = country;
+        this.createdAt = createdAt;
+    }
 }
