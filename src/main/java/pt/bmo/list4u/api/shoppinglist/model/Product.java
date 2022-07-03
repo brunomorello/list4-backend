@@ -11,4 +11,8 @@ import lombok.*;
 public class Product {
     private long id;
     private String name;
+
+    public Product(String name) {
+        this.name = name;
+    }
 }
