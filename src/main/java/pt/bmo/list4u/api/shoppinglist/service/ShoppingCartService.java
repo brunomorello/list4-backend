@@ -13,5 +13,5 @@ public interface ShoppingCartService {
     public Optional<ShoppingCart> getById(long id);
     public Page<ShoppingCart> getAll(Map<String, String> queryParams);
     public ShoppingCart create(ShoppingCart shoppingCart);
-    public ShoppingCart update(long id, ShoppingCart shoppingCart);
+    public Optional<ShoppingCart> update(ShoppingCart shoppingCart);
 }
