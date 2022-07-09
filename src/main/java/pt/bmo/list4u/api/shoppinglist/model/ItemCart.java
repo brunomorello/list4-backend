@@ -2,14 +2,22 @@ package pt.bmo.list4u.api.shoppinglist.model;
 
 import lombok.*;
 
+import javax.persistence.*;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString
 @Setter
 @Getter
+@Entity
 public class ItemCart {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
+    @ManyToOne(cascade = CascadeType.ALL)
     private Product product;
     private long quantity;
     private double price;
