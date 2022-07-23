@@ -37,7 +37,7 @@ public class ShoppingCartController {
     @GetMapping
     ResponseEntity<Page<ShoppingCart>> getAllShoppingCarts(@RequestParam Map<String, String> queryParams) {
         LOGGER.info(queryParams.toString());
-        return new ResponseEntity<Page<ShoppingCart>>(HttpStatus.OK);
+        return ResponseEntity.ok(service.getAll(queryParams));
     }
 
     @PostMapping

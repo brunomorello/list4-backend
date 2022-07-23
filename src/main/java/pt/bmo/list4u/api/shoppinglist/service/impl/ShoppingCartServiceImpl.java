@@ -2,6 +2,7 @@ package pt.bmo.list4u.api.shoppinglist.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pt.bmo.list4u.api.shoppinglist.model.ShoppingCart;
 import pt.bmo.list4u.api.shoppinglist.repository.ShoppingCartRepository;
@@ -23,7 +24,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public Page<ShoppingCart> getAll(Map<String, String> queryParams) {
-        return null;
+        return repository.findAll(Pageable.ofSize(10));
     }
 
     @Override
