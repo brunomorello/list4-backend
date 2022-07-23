@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin(origins = "https://list4u-front.herokuapp.com/")
 @RequestMapping("/api/shopping-carts")
 public class ShoppingCartController {
 
