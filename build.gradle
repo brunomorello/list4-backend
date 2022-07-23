@@ -4,14 +4,6 @@ plugins {
 	id 'java'
 }
 
-jar {
-	manifest {
-		attributes(
-			'Main-Class': 'pt.bmo.list4u.List4uApplication'
-		)
-	}
-}
-
 group = 'pt.bmo'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
@@ -42,4 +34,12 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+jar {
+	manifest {
+		attributes(
+				'Main-Class': 'pt.bmo.list4u.List4uApplication'
+		)
+	}
 }
