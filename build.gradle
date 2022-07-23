@@ -6,7 +6,7 @@ plugins {
 
 group = 'pt.bmo'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
+sourceCompatibility = '11'
 
 repositories {
 	mavenCentral()
@@ -34,4 +34,11 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+java {
+	toolchain {
+		// automatically download a jdk for the build if not available
+		languageVersion.set(JavaLanguageVersion.of(8))
+	}
 }
