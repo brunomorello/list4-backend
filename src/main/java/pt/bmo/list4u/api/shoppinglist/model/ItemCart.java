@@ -22,13 +22,13 @@ public class ItemCart {
     private long quantity;
     private double price;
     private boolean picked;
-    private String supermakertName;
+    private String supermarketName;
 
     public ItemCart(Product product, long quantity, double price, boolean picked, String supermakertName) {
         this.product = product;
         this.quantity = quantity;
         this.price = price;
         this.picked = picked;
-        this.supermakertName = supermakertName;
+        this.supermarketName = supermakertName;
     }
 }
