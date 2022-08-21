@@ -12,8 +12,11 @@ import pt.bmo.list4u.api.shoppinglist.model.ShoppingCart;
 import pt.bmo.list4u.api.shoppinglist.service.ShoppingCartService;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "https://list4u-front.herokuapp.com/")
@@ -36,8 +39,11 @@ public class ShoppingCartController {
     }
 
     @GetMapping
-    ResponseEntity<Page<ShoppingCart>> getAllShoppingCarts(@RequestParam Map<String, String> queryParams) {
+    ResponseEntity getAllShoppingCarts(@RequestParam Map<String, String> queryParams) {
         LOGGER.info(queryParams.toString());
+        if (queryParams.containsKey("byPeriod")) {
+            return ResponseEntity.ok(service.getByPeriod(queryParams.get("byPeriod")));
+        }
         return ResponseEntity.ok(service.getAll(queryParams));
     }
 
@@ -53,7 +59,7 @@ public class ShoppingCartController {
     ResponseEntity updateShoppingCart(@PathVariable long id, @RequestBody ShoppingCart shoppingCart) {
         LOGGER.info("updateShoppingCart: id= " + id);
         LOGGER.info("updateShoppingCart: body= " + shoppingCart);
-        Optional<ShoppingCart> shoppingCartOptional = service.update(shoppingCart);
+        Optional<ShoppingCart> shoppingCartOptional = service.update(id, shoppingCart);
         if (shoppingCartOptional.isPresent()) {
             return ResponseEntity.ok(shoppingCartOptional.get());
         }

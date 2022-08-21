@@ -8,8 +8,14 @@ import pt.bmo.list4u.api.shoppinglist.model.ShoppingCart;
 import pt.bmo.list4u.api.shoppinglist.repository.ShoppingCartRepository;
 import pt.bmo.list4u.api.shoppinglist.service.ShoppingCartService;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
+import java.util.ArrayList;
 
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
@@ -28,13 +34,29 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    public List<ShoppingCart> getByPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+        return repository.findByCreatedAtBetween(startDate, endDate);
+    }
+
+    @Override
+    public List<ShoppingCart> getByPeriod(String periodParams) {
+        String[] periods = periodParams.split(",");
+        if (Objects.nonNull(periods[0]) && Objects.nonNull(periods[1])) {
+            LocalDateTime startDate = LocalDate.parse(periods[0], DateTimeFormatter.ISO_LOCAL_DATE).atTime(0,0);
+            LocalDateTime endDate = LocalDate.parse(periods[1], DateTimeFormatter.ISO_LOCAL_DATE).atTime(0, 0);
+            return repository.findByCreatedAtBetween(startDate, endDate);
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
     public ShoppingCart create(ShoppingCart shoppingCart) {
         return repository.save(shoppingCart);
     }
 
     @Override
-    public Optional<ShoppingCart> update(ShoppingCart shoppingCart) {
-        if (repository.findById(shoppingCart.getId()).isPresent()) {
+    public Optional<ShoppingCart> update(long id, ShoppingCart shoppingCart) {
+        if (repository.findById(id).isPresent()) {
             return Optional.of(repository.save(shoppingCart));
         }
         return Optional.empty();
