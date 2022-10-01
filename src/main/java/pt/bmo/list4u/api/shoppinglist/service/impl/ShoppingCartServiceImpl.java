@@ -50,6 +50,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    public Page<ShoppingCart> getAllByFinished(boolean finished, Pageable pageable) {
+        return repository.findByFinished(finished, pageable);
+    }
+
+    @Override
     public ShoppingCart create(ShoppingCart shoppingCart) {
         return repository.save(shoppingCart);
     }
