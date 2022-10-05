@@ -7,7 +7,7 @@
 
 > heroku login
 
-> git push heroku master
+> git push heroku master | git push heroku develop:master
 
 > heroku logs --tail
 

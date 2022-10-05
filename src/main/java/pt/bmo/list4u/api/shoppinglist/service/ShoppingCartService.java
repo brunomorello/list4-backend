@@ -20,4 +20,5 @@ public interface ShoppingCartService {
     public Page<ShoppingCart> getAllByFinished(boolean finished, Pageable pageable);
     public ShoppingCart create(ShoppingCart shoppingCart);
     public Optional<ShoppingCart> update(long id, ShoppingCart shoppingCart);
+    public void delete(long id);
 }
