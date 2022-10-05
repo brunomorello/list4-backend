@@ -66,4 +66,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
         return Optional.empty();
     }
+
+    @Override
+    public void delete(long id) {
+        repository.deleteById(id);
+    }
 }

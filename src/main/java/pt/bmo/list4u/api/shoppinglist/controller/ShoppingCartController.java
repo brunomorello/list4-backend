@@ -3,10 +3,8 @@ package pt.bmo.list4u.api.shoppinglist.controller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -15,11 +13,8 @@ import pt.bmo.list4u.api.shoppinglist.service.ShoppingCartReportsService;
 import pt.bmo.list4u.api.shoppinglist.service.ShoppingCartService;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "https://list4u-front.herokuapp.com/")
@@ -73,6 +68,13 @@ public class ShoppingCartController {
             return ResponseEntity.ok(shoppingCartOptional.get());
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("{id}")
+    ResponseEntity deleteShoppingCart(@PathVariable long id) {
+        LOGGER.info("deleteShoppingCart: id= {}", id);
+        service.delete(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/total-spent-by-year/{year}")
