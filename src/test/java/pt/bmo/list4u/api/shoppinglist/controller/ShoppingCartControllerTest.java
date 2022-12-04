@@ -12,9 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.MultiValueMapAdapter;
-import pt.bmo.list4u.api.shoppinglist.model.ItemCart;
-import pt.bmo.list4u.api.shoppinglist.model.Product;
-import pt.bmo.list4u.api.shoppinglist.model.ShoppingCart;
+import pt.bmo.list4u.api.shoppinglist.model.*;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -63,8 +61,9 @@ class ShoppingCartControllerTest {
 //    @Test
     void should_create_shopping_cart() throws Exception {
         Product beer = new Product("Beer");
+        Supermarket supermarket = new Supermarket(1L, "Test", Country.PORTUGAL);
         List<ItemCart> items = Arrays.asList(new ItemCart(beer, 4L, 1.5, false, "Pingodoce"));
-        ShoppingCart shoppingCart = new ShoppingCart("test", items, false, "Portugal", LocalDateTime.now());
+        ShoppingCart shoppingCart = new ShoppingCart("test", items, false, supermarket, LocalDateTime.now());
 
         String shoppingCartPayload = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
@@ -80,8 +79,9 @@ class ShoppingCartControllerTest {
 //    @Test
     void should_update_shopping_cart_name() throws Exception {
         Product beer = new Product("Beer");
+        Supermarket supermarket = new Supermarket(1L, "Test", Country.BRAZIL);
         List<ItemCart> items = Arrays.asList(new ItemCart(beer, 4L, 1.5, false, "Pingodoce"));
-        ShoppingCart shoppingCart = new ShoppingCart(1L, "test2", items, false, "Portugal", LocalDateTime.now());
+        ShoppingCart shoppingCart = new ShoppingCart(1L, "test2", items, false, supermarket, LocalDateTime.now());
 
         String payload = new ObjectMapper().registerModule(new JavaTimeModule())
                 .writeValueAsString(shoppingCart);
