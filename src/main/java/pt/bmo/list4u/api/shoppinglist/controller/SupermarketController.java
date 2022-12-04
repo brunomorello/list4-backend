@@ -35,7 +35,7 @@ public class SupermarketController {
 
     @GetMapping
     ResponseEntity<Page<Supermarket>> getAll(Pageable pageable) {
-        LOGGER.info("Supermarkets - getAll");
+        LOGGER.info("Supermarkets - getAll Pageable = {}", pageable);
         return ResponseEntity.ok(service.getAll(pageable));
     }
 
