@@ -16,6 +16,6 @@ import javax.persistence.Id;
 public class TotalSpentByMonthReport {
 
     @Id
-    private Long month;
-    private Double total;
+    private long month;
+    private double total;
 }

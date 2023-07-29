@@ -44,7 +44,7 @@ public class SupermarketServiceImpl implements SupermarketService {
         Optional<Supermarket> supermarketOptional = repository.findById(id);
         if (supermarketOptional.isPresent()) {
             repository.deleteById(id);
-            return Optional.of(supermarketOptional.get());
+            return supermarketOptional;
         }
         return Optional.empty();
     }

@@ -41,7 +41,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public List<ShoppingCart> getByPeriod(String periodParams) {
         String[] periods = periodParams.split(",");
-        if (Objects.nonNull(periods[0]) && Objects.nonNull(periods[1])) {
+        if (periods.length > 0 && Objects.nonNull(periods[0]) && Objects.nonNull(periods[1])) {
             LocalDateTime startDate = LocalDate.parse(periods[0], DateTimeFormatter.ISO_LOCAL_DATE).atTime(0,0);
             LocalDateTime endDate = LocalDate.parse(periods[1], DateTimeFormatter.ISO_LOCAL_DATE).atTime(0, 0);
             return repository.findByCreatedAtBetween(startDate, endDate);

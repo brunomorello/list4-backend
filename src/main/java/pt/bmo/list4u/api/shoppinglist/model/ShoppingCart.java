@@ -28,7 +28,7 @@ public class ShoppingCart {
     private Supermarket supermarket;
     private LocalDateTime createdAt;
 
-    public ShoppingCart(String name, List<ItemCart> items, boolean finished, Supermarket country, LocalDateTime createdAt) {
+    public ShoppingCart(String name, List<ItemCart> items, boolean finished, Supermarket supermarket, LocalDateTime createdAt) {
         this.name = name;
         this.items = items;
         this.finished = finished;
