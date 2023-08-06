@@ -8,6 +8,7 @@ import pt.bmo.list4u.api.shoppinglist.model.Product;
 import pt.bmo.list4u.api.shoppinglist.repository.ProductRepository;
 import pt.bmo.list4u.api.shoppinglist.service.ProductService;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,6 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     public ProductRepository repository;
 
-    @Override
     public Optional<Product> getById(Long id) {
         return repository.findById(id);
     }
