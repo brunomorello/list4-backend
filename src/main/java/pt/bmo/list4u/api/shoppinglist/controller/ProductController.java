@@ -52,7 +52,7 @@ public class ProductController {
         Optional<Product> productOptional = service.update(id, product);
         return productOptional.isPresent() ?
             ResponseEntity.ok(productOptional.get()) :
-            ResponseEntity.notFound().build();
+            ResponseEntity.status(404).body(null);
     }
 
 }
