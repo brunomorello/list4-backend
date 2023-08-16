@@ -41,22 +41,24 @@ class ProductControllerTest {
     @Autowired
     private ProductRepository productRepository;
 
-    private String BASE_URL = "/api/products";
+    private static final String BASE_URL = "/api/products/";
+
+    private Product product;
 
     @BeforeEach
-    void setup(WebApplicationContext webApplicationContext) {
-        Product product = new Product("Product Test");
+    void setup() {
+        product = new Product("Product Test");
         productRepository.save(product);
     }
 
     @Test
     void should_find_product_by_id() throws Exception {
-        this.mockMvc.perform(get(BASE_URL + "/1")).andDo(print()).andExpect(status().isOk());
+        this.mockMvc.perform(get(BASE_URL + product.getId())).andDo(print()).andExpect(status().isOk());
     }
 
     @Test
     void when_id_inexistent_then_return_not_found() throws Exception {
-        this.mockMvc.perform(get(BASE_URL + "/32312")).andExpect(status().isNotFound());
+        this.mockMvc.perform(get(BASE_URL + "32312")).andExpect(status().isNotFound());
     }
 
     @Test
@@ -84,10 +86,9 @@ class ProductControllerTest {
 
     @Test
     void should_update_a_product() throws Exception {
-        Product product = new Product("Product Test");
-        product.setId(1l);
+        this.product.setName("Product Test");
 
-        MvcResult mvcResult = this.mockMvc.perform(put(BASE_URL + "/1")
+        MvcResult mvcResult = this.mockMvc.perform(put(BASE_URL + this.product.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(product))
         ).andExpect(status().isOk()).andReturn();
@@ -102,7 +103,7 @@ class ProductControllerTest {
     void when_update_a_product_with_inexistent_id_then_return_not_found() throws Exception {
         Product product = new Product("Product Test");
 
-        this.mockMvc.perform(put(BASE_URL + "/1232131")
+        this.mockMvc.perform(put(BASE_URL + "1232131")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(product)))
                 .andExpect(status().isNotFound());

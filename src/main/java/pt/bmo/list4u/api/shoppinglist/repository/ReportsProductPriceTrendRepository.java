@@ -2,6 +2,7 @@ package pt.bmo.list4u.api.shoppinglist.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pt.bmo.list4u.api.shoppinglist.model.report.ProductPriceTrendReport;
 
@@ -16,7 +17,7 @@ public interface ReportsProductPriceTrendRepository extends JpaRepository<Produc
             " inner join shopping_cart_items sci on (ic.id = sci.items_id)\n" +
             " inner join shopping_cart sc on (sci.shopping_cart_id = sc.id)\n" +
             " where ic.price > 0 \n" +
-            " and extract(year from sc.created_at) = ?1 \n" +
+            " and extract(year from sc.created_at) = :year \n" +
             " order by 3, 2, 4", nativeQuery = true)
-    List<ProductPriceTrendReport> getProductsPriceTrends(long year);
+    List<ProductPriceTrendReport> getProductsPriceTrends(@Param("year") long year);
 }

@@ -9,14 +9,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import pt.bmo.list4u.api.shoppinglist.model.Product;
 import pt.bmo.list4u.api.shoppinglist.repository.ProductRepository;
 import pt.bmo.list4u.api.shoppinglist.utils.FakeValues;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,7 +35,7 @@ class ProductServiceImplTest {
     private ArgumentCaptor<Product> productArgumentCaptor;
 
     private Product create() {
-        return new Product(FakeValues.LONG, FakeValues.STRING);
+        return new Product(FakeValues.FAKE_LONG, FakeValues.FAKE_STR);
     }
 
     @Test
@@ -46,7 +43,7 @@ class ProductServiceImplTest {
         Product product = create();
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.of(product));
 
-        Optional<Product> optionalProduct = service.getById(FakeValues.LONG);
+        Optional<Product> optionalProduct = service.getById(FakeValues.FAKE_LONG);
 
         assertTrue(optionalProduct.isPresent());
     }
@@ -54,7 +51,7 @@ class ProductServiceImplTest {
     @Test
     void when_get_by_inexistent_id_then_return_empty() {
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
-        Optional<Product> optionalProduct = service.getById(FakeValues.LONG);
+        Optional<Product> optionalProduct = service.getById(FakeValues.FAKE_LONG);
 
         assertTrue(optionalProduct.isEmpty());
     }
@@ -76,7 +73,7 @@ class ProductServiceImplTest {
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.of(product));
         Mockito.when(repository.save(Mockito.any())).thenReturn(product);
 
-        Optional<Product> optionalProduct = service.update(FakeValues.LONG, product);
+        Optional<Product> optionalProduct = service.update(FakeValues.FAKE_LONG, product);
         Mockito.verify(repository).save(productArgumentCaptor.capture());
 
         assertEquals(optionalProduct.get(), productArgumentCaptor.getValue());
@@ -87,7 +84,7 @@ class ProductServiceImplTest {
         Product product = create();
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
-        Optional<Product> optionalProduct = service.update(FakeValues.LONG, product);
+        Optional<Product> optionalProduct = service.update(FakeValues.FAKE_LONG, product);
 
         assertTrue(optionalProduct.isEmpty());
     }

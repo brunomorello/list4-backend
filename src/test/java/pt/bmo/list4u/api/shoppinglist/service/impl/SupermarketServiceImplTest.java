@@ -39,7 +39,7 @@ class SupermarketServiceImplTest {
     private ArgumentCaptor<Supermarket> supermarketArgumentCaptor;
 
     private Supermarket create() {
-        return new Supermarket(FakeValues.LONG, FakeValues.STRING, Country.BRAZIL);
+        return new Supermarket(FakeValues.FAKE_LONG, FakeValues.FAKE_STR, Country.BRAZIL);
     }
 
     @Test
@@ -50,8 +50,8 @@ class SupermarketServiceImplTest {
         Optional<Supermarket> supermarketOptional = service.getById(1l);
 
         assertTrue(supermarketOptional.isPresent());
-        assertEquals(FakeValues.LONG, supermarketOptional.get().getId());
-        assertEquals(FakeValues.STRING, supermarketOptional.get().getName());
+        assertEquals(FakeValues.FAKE_LONG, supermarketOptional.get().getId());
+        assertEquals(FakeValues.FAKE_STR, supermarketOptional.get().getName());
         assertEquals(Country.BRAZIL, supermarketOptional.get().getCountry());
     }
 
@@ -130,7 +130,7 @@ class SupermarketServiceImplTest {
 
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.of(supermarket));
 
-        Optional<Supermarket> deletedSupermarket = service.delete(FakeValues.LONG);
+        Optional<Supermarket> deletedSupermarket = service.delete(FakeValues.FAKE_LONG);
         Mockito.verify(repository, Mockito.atLeastOnce()).deleteById(Mockito.anyLong());
 
         assertTrue(deletedSupermarket.isPresent());
@@ -140,7 +140,7 @@ class SupermarketServiceImplTest {
     void when_delete_inexistent_supermarket_then_return_empty() {
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
-        Optional<Supermarket> deletedSupermarket = service.delete(FakeValues.LONG);
+        Optional<Supermarket> deletedSupermarket = service.delete(FakeValues.FAKE_LONG);
 
         assertTrue(deletedSupermarket.isEmpty());
     }

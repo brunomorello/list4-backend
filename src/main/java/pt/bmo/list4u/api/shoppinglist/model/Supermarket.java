@@ -19,4 +19,8 @@ public class Supermarket {
     @Enumerated(EnumType.STRING)
     private Country country;
 
+    public Supermarket(String name, Country country) {
+        this.name = name;
+        this.country = country;
+    }
 }

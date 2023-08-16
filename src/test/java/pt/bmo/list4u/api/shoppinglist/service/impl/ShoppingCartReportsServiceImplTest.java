@@ -34,7 +34,7 @@ class ShoppingCartReportsServiceImplTest {
         List<TotalSpentByMonthReport> totalSpentByMonthReports = Arrays.asList(createTotalSpentByMonthReport());
         Mockito.when(totalSpentByMonthRepository.getTotalSpentByMonthOnYear(Mockito.anyLong())).thenReturn(totalSpentByMonthReports);
 
-        List<TotalSpentByMonthReport> totalSpentByMonthOnYear = service.getTotalSpentByMonthOnYear(FakeValues.LONG);
+        List<TotalSpentByMonthReport> totalSpentByMonthOnYear = service.getTotalSpentByMonthOnYear(FakeValues.FAKE_LONG);
 
         assertFalse(totalSpentByMonthOnYear.isEmpty());
     }
@@ -42,18 +42,18 @@ class ShoppingCartReportsServiceImplTest {
     @Test
     void when_getProductsPriceTrends_then_return_values() {
         List<ProductPriceTrendReport> productPriceTrendReports = Arrays.asList(createProductPriceTrendReport());
-        Mockito.when(productPriceTrendRepository.getProductsPriceTrends(FakeValues.LONG)).thenReturn(productPriceTrendReports);
+        Mockito.when(productPriceTrendRepository.getProductsPriceTrends(FakeValues.FAKE_LONG)).thenReturn(productPriceTrendReports);
 
-        List<ProductPriceTrendReport> productsPriceTrends = service.getProductsPriceTrends(FakeValues.LONG);
+        List<ProductPriceTrendReport> productsPriceTrends = service.getProductsPriceTrends(FakeValues.FAKE_LONG);
 
         assertFalse(productsPriceTrends.isEmpty());
     }
 
     private TotalSpentByMonthReport createTotalSpentByMonthReport() {
-        return new TotalSpentByMonthReport(FakeValues.LONG, FakeValues.DOUBLE);
+        return new TotalSpentByMonthReport(FakeValues.FAKE_LONG, FakeValues.FAKE_DOUBLE);
     }
 
     private ProductPriceTrendReport createProductPriceTrendReport() {
-        return new ProductPriceTrendReport(FakeValues.LONG, FakeValues.STRING, FakeValues.LONG, FakeValues.DOUBLE);
+        return new ProductPriceTrendReport(FakeValues.FAKE_LONG, FakeValues.FAKE_STR, FakeValues.FAKE_LONG, FakeValues.FAKE_DOUBLE);
     }
 }

@@ -48,7 +48,7 @@ class ShoppingCartServiceImplTest {
         ShoppingCart shoppingCart = create();
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.of(shoppingCart));
 
-        Optional<ShoppingCart> optionalShoppingCart = service.getById(FakeValues.LONG);
+        Optional<ShoppingCart> optionalShoppingCart = service.getById(FakeValues.FAKE_LONG);
 
         assertTrue(optionalShoppingCart.isPresent());
     }
@@ -56,7 +56,7 @@ class ShoppingCartServiceImplTest {
     @Test
     void when_get_by_inexistent_id_then_return_empty() {
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
-        Optional<ShoppingCart> optionalShoppingCart = service.getById(FakeValues.LONG);
+        Optional<ShoppingCart> optionalShoppingCart = service.getById(FakeValues.FAKE_LONG);
 
         assertTrue(optionalShoppingCart.isEmpty());
     }
@@ -147,7 +147,7 @@ class ShoppingCartServiceImplTest {
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.of(shoppingCart));
         Mockito.when(repository.save(Mockito.any())).thenReturn(shoppingCart);
 
-        Optional<ShoppingCart> optionalShoppingCart = service.update(FakeValues.LONG, shoppingCart);
+        Optional<ShoppingCart> optionalShoppingCart = service.update(FakeValues.FAKE_LONG, shoppingCart);
         Mockito.verify(repository).save(shoppingCartArgumentCaptor.capture());
 
         assertEquals(optionalShoppingCart.get(), shoppingCartArgumentCaptor.getValue());
@@ -158,21 +158,21 @@ class ShoppingCartServiceImplTest {
         ShoppingCart shoppingCart = create();
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
-        Optional<ShoppingCart> optionalShoppingCart = service.update(FakeValues.LONG, shoppingCart);
+        Optional<ShoppingCart> optionalShoppingCart = service.update(FakeValues.FAKE_LONG, shoppingCart);
 
         assertTrue(optionalShoppingCart.isEmpty());
     }
 
     @Test
     void when_delete_shopping_cart_then_verify_repository_delete() {
-        service.delete(FakeValues.LONG);
+        service.delete(FakeValues.FAKE_LONG);
         Mockito.verify(repository, Mockito.atLeastOnce()).deleteById(Mockito.anyLong());
     }
 
     private ShoppingCart create() {
-        Product product = new Product(FakeValues.LONG, FakeValues.STRING);
-        List<ItemCart> itemCartList = Arrays.asList(new ItemCart(FakeValues.LONG, product, FakeValues.LONG, FakeValues.DOUBLE, true, FakeValues.STRING));
-        Supermarket supermarket = new Supermarket(FakeValues.LONG, FakeValues.STRING, Country.BRAZIL);
-        return new ShoppingCart(FakeValues.LONG, FakeValues.STRING, itemCartList, false, supermarket, LocalDateTime.now());
+        Product product = new Product(FakeValues.FAKE_LONG, FakeValues.FAKE_STR);
+        List<ItemCart> itemCartList = Arrays.asList(new ItemCart(FakeValues.FAKE_LONG, product, FakeValues.FAKE_LONG, FakeValues.FAKE_DOUBLE, true, FakeValues.FAKE_STR));
+        Supermarket supermarket = new Supermarket(FakeValues.FAKE_LONG, FakeValues.FAKE_STR, Country.BRAZIL);
+        return new ShoppingCart(FakeValues.FAKE_LONG, FakeValues.FAKE_STR, itemCartList, false, supermarket, LocalDateTime.now());
     }
 }

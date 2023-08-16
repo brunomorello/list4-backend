@@ -36,8 +36,8 @@ class ItemCartServiceImplTest {
     private ArgumentCaptor<ItemCart> itemCartArgumentCaptor;
 
     private ItemCart create() {
-        Product product = new Product(FakeValues.LONG, FakeValues.STRING);
-        return new ItemCart(FakeValues.LONG, product, FakeValues.LONG, FakeValues.DOUBLE, false, FakeValues.STRING);
+        Product product = new Product(FakeValues.FAKE_LONG, FakeValues.FAKE_STR);
+        return new ItemCart(FakeValues.FAKE_LONG, product, FakeValues.FAKE_LONG, FakeValues.FAKE_DOUBLE, false, FakeValues.FAKE_STR);
     }
 
     @Test
@@ -45,7 +45,7 @@ class ItemCartServiceImplTest {
         ItemCart itemCart = create();
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.of(itemCart));
 
-        Optional<ItemCart> itemCartOptional = service.getById(FakeValues.LONG);
+        Optional<ItemCart> itemCartOptional = service.getById(FakeValues.FAKE_LONG);
 
         assertTrue(itemCartOptional.isPresent());
     }
@@ -53,7 +53,7 @@ class ItemCartServiceImplTest {
     @Test
     void when_get_by_inexistent_id_then_return_empty() {
         Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
-        Optional<ItemCart> itemCartOptional = service.getById(FakeValues.LONG);
+        Optional<ItemCart> itemCartOptional = service.getById(FakeValues.FAKE_LONG);
 
         assertTrue(itemCartOptional.isEmpty());
     }
@@ -81,7 +81,7 @@ class ItemCartServiceImplTest {
     @Test
     void when_update_existent_item_cart_then_verify_repository_save() {
         ItemCart itemCart = create();
-        Mockito.when(repository.findById(FakeValues.LONG)).thenReturn(Optional.of(itemCart));
+        Mockito.when(repository.findById(FakeValues.FAKE_LONG)).thenReturn(Optional.of(itemCart));
         Mockito.when(repository.save(Mockito.any())).thenReturn(itemCart);
 
         Optional<ItemCart> updatedItemCart = service.update(itemCart);
