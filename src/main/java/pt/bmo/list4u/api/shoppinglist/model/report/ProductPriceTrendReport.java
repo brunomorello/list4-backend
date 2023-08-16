@@ -16,7 +16,7 @@ import javax.persistence.Id;
 public class ProductPriceTrendReport {
 
     @Id
-    private Long id;
+    private long id;
     private String name;
     private long month;
     private double price;

@@ -23,14 +23,16 @@ public class ShoppingCart {
     @OneToMany(cascade = CascadeType.ALL)
     private List<ItemCart> items;
     private boolean finished;
-    private String country;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Supermarket supermarket;
     private LocalDateTime createdAt;
 
-    public ShoppingCart(String name, List<ItemCart> items, boolean finished, String country, LocalDateTime createdAt) {
+    public ShoppingCart(String name, List<ItemCart> items, boolean finished, Supermarket supermarket, LocalDateTime createdAt) {
         this.name = name;
         this.items = items;
         this.finished = finished;
-        this.country = country;
+        this.supermarket = supermarket;
         this.createdAt = createdAt;
     }
 }
