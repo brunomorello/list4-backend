@@ -20,55 +20,60 @@ import java.util.ArrayList;
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
 
-    @Autowired
-    private ShoppingCartRepository repository;
+//    @Autowired
+//    private ShoppingCartRepository repository;
 
     @Override
     public Optional<ShoppingCart> getById(long id) {
-        return repository.findById(id);
+//        return repository.findById(id);
+        return Optional.empty();
     }
 
     @Override
     public Page<ShoppingCart> getAll(Map<String, String> queryParams) {
-        return repository.findAll(Pageable.ofSize(10));
+//        return repository.findAll(Pageable.ofSize(10));
+        return null;
     }
 
     @Override
     public List<ShoppingCart> getByPeriod(LocalDateTime startDate, LocalDateTime endDate) {
-        return repository.findByCreatedAtBetween(startDate, endDate);
+//        return repository.findByCreatedAtBetween(startDate, endDate);
+        return null;
     }
 
     @Override
     public List<ShoppingCart> getByPeriod(String periodParams) {
-        String[] periods = periodParams.split(",");
-        if (periods.length > 0 && Objects.nonNull(periods[0]) && Objects.nonNull(periods[1])) {
-            LocalDateTime startDate = LocalDate.parse(periods[0], DateTimeFormatter.ISO_LOCAL_DATE).atTime(0,0);
-            LocalDateTime endDate = LocalDate.parse(periods[1], DateTimeFormatter.ISO_LOCAL_DATE).atTime(0, 0);
-            return repository.findByCreatedAtBetween(startDate, endDate);
-        }
+//        String[] periods = periodParams.split(",");
+//        if (periods.length > 0 && Objects.nonNull(periods[0]) && Objects.nonNull(periods[1])) {
+//            LocalDateTime startDate = LocalDate.parse(periods[0], DateTimeFormatter.ISO_LOCAL_DATE).atTime(0,0);
+//            LocalDateTime endDate = LocalDate.parse(periods[1], DateTimeFormatter.ISO_LOCAL_DATE).atTime(0, 0);
+//            return repository.findByCreatedAtBetween(startDate, endDate);
+//        }
         return new ArrayList<>();
     }
 
     @Override
     public Page<ShoppingCart> getAllByFinished(boolean finished, Pageable pageable) {
-        return repository.findByFinished(finished, pageable);
+//        return repository.findByFinished(finished, pageable);
+        return null;
     }
 
     @Override
     public ShoppingCart create(ShoppingCart shoppingCart) {
-        return repository.save(shoppingCart);
+//        return repository.save(shoppingCart);
+        return null;
     }
 
     @Override
     public Optional<ShoppingCart> update(long id, ShoppingCart shoppingCart) {
-        if (repository.findById(id).isPresent()) {
-            return Optional.of(repository.save(shoppingCart));
-        }
+//        if (repository.findById(id).isPresent()) {
+//            return Optional.of(repository.save(shoppingCart));
+//        }
         return Optional.empty();
     }
 
     @Override
     public void delete(long id) {
-        repository.deleteById(id);
+//        repository.deleteById(id);
     }
 }

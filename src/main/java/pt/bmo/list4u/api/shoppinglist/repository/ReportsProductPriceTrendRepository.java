@@ -1,7 +1,7 @@
 package pt.bmo.list4u.api.shoppinglist.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pt.bmo.list4u.api.shoppinglist.model.report.ProductPriceTrendReport;
@@ -9,7 +9,7 @@ import pt.bmo.list4u.api.shoppinglist.model.report.ProductPriceTrendReport;
 import java.util.List;
 
 @Repository
-public interface ReportsProductPriceTrendRepository extends JpaRepository<ProductPriceTrendReport, Long> {
+public interface ReportsProductPriceTrendRepository extends R2dbcRepository<ProductPriceTrendReport, Long> {
     @Query(value = "select row_number() over (order by p.\"name\") as id, " +
             " upper(p.\"name\") as name, extract(month from sc.created_at) as month, ic.price\n" +
             " from item_cart ic \n" +
@@ -18,6 +18,6 @@ public interface ReportsProductPriceTrendRepository extends JpaRepository<Produc
             " inner join shopping_cart sc on (sci.shopping_cart_id = sc.id)\n" +
             " where ic.price > 0 \n" +
             " and extract(year from sc.created_at) = :year \n" +
-            " order by 3, 2, 4", nativeQuery = true)
+            " order by 3, 2, 4")
     List<ProductPriceTrendReport> getProductsPriceTrends(@Param("year") long year);
 }

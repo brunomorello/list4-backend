@@ -1,34 +1,12 @@
 package pt.bmo.list4u.api.shoppinglist.model;
 
-import lombok.*;
+import lombok.Builder;
 
-import javax.persistence.*;
-
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode
-@ToString
-@Setter
-@Getter
-@Entity
-public class ItemCart {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    private Product product;
-    private long quantity;
-    private double price;
-    private boolean picked;
-    private String supermarketName;
-
-    public ItemCart(Product product, long quantity, double price, boolean picked, String supermakertName) {
-        this.product = product;
-        this.quantity = quantity;
-        this.price = price;
-        this.picked = picked;
-        this.supermarketName = supermakertName;
-    }
-}
+@Builder
+public record ItemCart (
+        long id,
+        Product product,
+        long quantity,
+        double price,
+        boolean picked
+) { }

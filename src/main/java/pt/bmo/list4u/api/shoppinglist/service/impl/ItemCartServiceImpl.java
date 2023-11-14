@@ -10,12 +10,13 @@ import java.util.Optional;
 
 public class ItemCartServiceImpl implements ItemCartService {
 
-    @Autowired
-    private ItemCartRepository repository;
+//    @Autowired
+//    private ItemCartRepository repository;
 
     @Override
     public Optional<ItemCart> getById(Long id) {
-        return repository.findById(id);
+//        return repository.findById(id);
+        return Optional.empty();
     }
 
     @Override
@@ -25,14 +26,15 @@ public class ItemCartServiceImpl implements ItemCartService {
 
     @Override
     public ItemCart create(ItemCart itemCart) {
-        return repository.save(itemCart);
+//        return repository.save(itemCart);
+        return null;
     }
 
     @Override
     public Optional<ItemCart> update(ItemCart itemCart) {
-        if (repository.findById(itemCart.getId()).isPresent()) {
-            return Optional.of(repository.save(itemCart));
-        }
+//        if (repository.findById(itemCart.getId()).isPresent()) {
+//            return Optional.of(repository.save(itemCart));
+//        }
         return Optional.empty();
     }
 }

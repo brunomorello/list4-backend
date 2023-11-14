@@ -1,7 +1,7 @@
 package pt.bmo.list4u.api.shoppinglist.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pt.bmo.list4u.api.shoppinglist.model.report.TotalSpentByMonthReport;
@@ -9,7 +9,7 @@ import pt.bmo.list4u.api.shoppinglist.model.report.TotalSpentByMonthReport;
 import java.util.List;
 
 @Repository
-public interface ReportsTotalSpentByMonthRepository extends JpaRepository<TotalSpentByMonthReport, Long> {
+public interface ReportsTotalSpentByMonthRepository extends R2dbcRepository<TotalSpentByMonthReport, Long> {
 
     @Query(value = "select extract(month from sc.created_at) as month, sum(price * quantity) as total\n" +
             " from item_cart ic \n" +
@@ -17,7 +17,7 @@ public interface ReportsTotalSpentByMonthRepository extends JpaRepository<TotalS
             " inner join shopping_cart_items sci on (ic.id = sci.items_id)\n" +
             " inner join shopping_cart sc on (sci.shopping_cart_id = sc.id)\n" +
             " where extract(year from sc.created_at) = :year \n" +
-            " group by extract(month from sc.created_at)", nativeQuery = true)
+            " group by extract(month from sc.created_at)")
     List<TotalSpentByMonthReport> getTotalSpentByMonthOnYear(@Param("year") long year);
 
 }

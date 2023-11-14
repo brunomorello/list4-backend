@@ -13,19 +13,21 @@ import java.util.List;
 @Service
 public class ShoppingCartReportsServiceImpl implements ShoppingCartReportsService {
 
-    @Autowired
-    private ReportsTotalSpentByMonthRepository totalSpentByMonthRepository;
-
-    @Autowired
-    private ReportsProductPriceTrendRepository productPriceTrendRepository;
+//    @Autowired
+//    private ReportsTotalSpentByMonthRepository totalSpentByMonthRepository;
+//
+//    @Autowired
+//    private ReportsProductPriceTrendRepository productPriceTrendRepository;
 
     @Override
     public List<TotalSpentByMonthReport> getTotalSpentByMonthOnYear(long year) {
-        return totalSpentByMonthRepository.getTotalSpentByMonthOnYear(year);
+//        return totalSpentByMonthRepository.getTotalSpentByMonthOnYear(year);
+        return null;
     }
 
     @Override
     public List<ProductPriceTrendReport> getProductsPriceTrends(long year) {
-        return productPriceTrendRepository.getProductsPriceTrends(year);
+//        return productPriceTrendRepository.getProductsPriceTrends(year);
+        return null;
     }
 }

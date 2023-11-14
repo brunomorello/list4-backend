@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/api/shopping-carts")
 public class ShoppingCartController {
 
@@ -64,7 +63,7 @@ public class ShoppingCartController {
     ResponseEntity createShoppingCart(@RequestBody ShoppingCart shoppingCartRequest, UriComponentsBuilder uriComponentsBuilder) {
         LOGGER.info("createShoppingCart: body= " + shoppingCartRequest);
         ShoppingCart shoppingCart = service.create(shoppingCartRequest);
-        URI uri = uriComponentsBuilder.path("/api/shopping-carts/{id}").buildAndExpand(shoppingCart.getId()).toUri();
+        URI uri = uriComponentsBuilder.path("/api/shopping-carts/{id}").buildAndExpand(shoppingCart.id()).toUri();
         return ResponseEntity.created(uri).body(shoppingCart);
     }
 

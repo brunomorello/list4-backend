@@ -42,7 +42,7 @@ public class ProductController {
     ResponseEntity createProduct(@RequestBody Product product, UriComponentsBuilder uriComponentsBuilder) {
         LOGGER.info("createProduct: requestBody= {}", product);
         Product productCreated = service.create(product);
-        URI uri = uriComponentsBuilder.path("/api/products/{id}").buildAndExpand(productCreated.getId()).toUri();
+        URI uri = uriComponentsBuilder.path("/api/products/{id}").buildAndExpand(productCreated.id()).toUri();
         return ResponseEntity.created(uri).body(product);
     }
 
