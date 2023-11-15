@@ -7,27 +7,24 @@ import pt.bmo.list4u.api.shoppinglist.model.report.TotalSpentByMonthReport;
 import pt.bmo.list4u.api.shoppinglist.repository.ReportsProductPriceTrendRepository;
 import pt.bmo.list4u.api.shoppinglist.repository.ReportsTotalSpentByMonthRepository;
 import pt.bmo.list4u.api.shoppinglist.service.ShoppingCartReportsService;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
 
 @Service
 public class ShoppingCartReportsServiceImpl implements ShoppingCartReportsService {
 
-//    @Autowired
-//    private ReportsTotalSpentByMonthRepository totalSpentByMonthRepository;
-//
-//    @Autowired
-//    private ReportsProductPriceTrendRepository productPriceTrendRepository;
+    @Autowired
+    private ReportsTotalSpentByMonthRepository totalSpentByMonthRepository;
+
+    @Autowired
+    private ReportsProductPriceTrendRepository productPriceTrendRepository;
 
     @Override
-    public List<TotalSpentByMonthReport> getTotalSpentByMonthOnYear(long year) {
-//        return totalSpentByMonthRepository.getTotalSpentByMonthOnYear(year);
-        return null;
+    public Flux<TotalSpentByMonthReport> getTotalSpentByMonthOnYear(long year) {
+        return totalSpentByMonthRepository.getTotalSpentByMonthOnYear(year);
     }
 
     @Override
-    public List<ProductPriceTrendReport> getProductsPriceTrends(long year) {
-//        return productPriceTrendRepository.getProductsPriceTrends(year);
-        return null;
+    public Flux<ProductPriceTrendReport> getProductsPriceTrends(long year) {
+        return productPriceTrendRepository.getProductsPriceTrends(year);
     }
 }

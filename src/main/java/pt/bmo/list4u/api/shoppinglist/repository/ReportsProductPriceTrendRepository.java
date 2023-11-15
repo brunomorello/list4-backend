@@ -5,8 +5,7 @@ import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pt.bmo.list4u.api.shoppinglist.model.report.ProductPriceTrendReport;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
 
 @Repository
 public interface ReportsProductPriceTrendRepository extends R2dbcRepository<ProductPriceTrendReport, Long> {
@@ -19,5 +18,5 @@ public interface ReportsProductPriceTrendRepository extends R2dbcRepository<Prod
             " where ic.price > 0 \n" +
             " and extract(year from sc.created_at) = :year \n" +
             " order by 3, 2, 4")
-    List<ProductPriceTrendReport> getProductsPriceTrends(@Param("year") long year);
+    Flux<ProductPriceTrendReport> getProductsPriceTrends(@Param("year") long year);
 }

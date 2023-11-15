@@ -1,24 +1,23 @@
 package pt.bmo.list4u.api.shoppinglist.service;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pt.bmo.list4u.api.shoppinglist.model.ShoppingCart;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public interface ShoppingCartService {
 
-    public Optional<ShoppingCart> getById(long id);
-    public Page<ShoppingCart> getAll(Map<String, String> queryParams);
-    public List<ShoppingCart> getByPeriod(LocalDateTime startDate, LocalDateTime endDate);
-    public List<ShoppingCart> getByPeriod(String periodParams);
-    public Page<ShoppingCart> getAllByFinished(boolean finished, Pageable pageable);
-    public ShoppingCart create(ShoppingCart shoppingCart);
-    public Optional<ShoppingCart> update(long id, ShoppingCart shoppingCart);
-    public void delete(long id);
+    Mono<ShoppingCart> getById(long id);
+    Flux<ShoppingCart> getAll(Map<String, String> queryParams);
+    Flux<ShoppingCart> getByPeriod(LocalDateTime startDate, LocalDateTime endDate);
+    Flux<ShoppingCart> getByPeriod(String periodParams);
+    Flux<ShoppingCart> getAllByFinished(boolean finished, Pageable pageable);
+    Mono<ShoppingCart> create(ShoppingCart shoppingCart);
+    Mono<ShoppingCart> update(long id, ShoppingCart shoppingCart);
+    Mono<Void> delete(long id);
 }

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import pt.bmo.list4u.api.shoppinglist.model.Product;
 import pt.bmo.list4u.api.shoppinglist.service.ProductService;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.List;
@@ -24,35 +26,37 @@ public class ProductController {
     private ProductService service;
 
     @GetMapping("{id}")
-    ResponseEntity<Product> getById(@PathVariable long id) {
+    public Mono<ResponseEntity<Product>> getById(@PathVariable long id) {
         LOGGER.info("getById: {}", id);
-        Optional<Product> productOptional = service.getById(id);
-        return productOptional.isPresent() ?
-                ResponseEntity.ok(productOptional.get()) :
-                ResponseEntity.notFound().build();
+        return service.getById(id)
+                .map(ResponseEntity::ok)
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+
     }
 
     @GetMapping
-    ResponseEntity<List<Product>> getAll() {
+    public Flux<Product> getAll() {
         LOGGER.info("getAll");
-        return ResponseEntity.ok(service.getAll());
+        return service.getAll();
     }
 
     @PostMapping
-    ResponseEntity createProduct(@RequestBody Product product, UriComponentsBuilder uriComponentsBuilder) {
+    Mono<ResponseEntity<Product>> createProduct(@RequestBody Product product, UriComponentsBuilder uriComponentsBuilder) {
         LOGGER.info("createProduct: requestBody= {}", product);
-        Product productCreated = service.create(product);
-        URI uri = uriComponentsBuilder.path("/api/products/{id}").buildAndExpand(productCreated.id()).toUri();
-        return ResponseEntity.created(uri).body(product);
+        return service.create(product)
+                .map(productCreated -> {
+                    URI uri = uriComponentsBuilder.path("/api/products/{id}").buildAndExpand(productCreated.id()).toUri();
+                    return ResponseEntity.created(uri).body(product);
+                })
+                .switchIfEmpty(Mono.just(ResponseEntity.badRequest().build()));
     }
 
     @PutMapping("{id}")
-    ResponseEntity updateProduct(@PathVariable long id, @RequestBody Product product) {
+    Mono<ResponseEntity<Product>> updateProduct(@PathVariable long id, @RequestBody Product product) {
         LOGGER.info("updateProduct: pathVariable: {}, requestBody= {}", id, product);
-        Optional<Product> productOptional = service.update(id, product);
-        return productOptional.isPresent() ?
-            ResponseEntity.ok(productOptional.get()) :
-            ResponseEntity.status(404).body(null);
+        return service.update(id, product)
+                .map(ResponseEntity::ok)
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
 
 }

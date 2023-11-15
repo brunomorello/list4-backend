@@ -5,8 +5,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,15 +15,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import pt.bmo.list4u.api.shoppinglist.model.ShoppingCart;
+import pt.bmo.list4u.api.shoppinglist.model.report.ProductPriceTrendReport;
+import pt.bmo.list4u.api.shoppinglist.model.report.TotalSpentByMonthReport;
 import pt.bmo.list4u.api.shoppinglist.service.ShoppingCartReportsService;
 import pt.bmo.list4u.api.shoppinglist.service.ShoppingCartService;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/shopping-carts")
@@ -38,62 +42,65 @@ public class ShoppingCartController {
     ShoppingCartReportsService reportsService;
 
     @GetMapping("{id}")
-    ResponseEntity<ShoppingCart> getById(@PathVariable long id) {
+    public Mono<ResponseEntity<ShoppingCart>> getById(@PathVariable long id) {
         LOGGER.info("getById: " + id);
-        Optional<ShoppingCart> shoppingCartOptional = service.getById(id);
-        if (shoppingCartOptional.isPresent()) {
-            return ResponseEntity.ok(shoppingCartOptional.get());
-        }
-        return ResponseEntity.notFound().build();
+
+        return service.getById(id)
+                .map(ResponseEntity::ok)
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
 
     @GetMapping
-    ResponseEntity getAllShoppingCarts(@RequestParam Map<String, String> queryParams, @PageableDefault(page = 0, size = 100) Pageable pageable) {
+    public Flux<ShoppingCart> getAllShoppingCarts(@RequestParam Map<String, String> queryParams, @PageableDefault(page = 0, size = 100) Pageable pageable) {
         LOGGER.info(queryParams.toString());
+
         if (queryParams.containsKey("byPeriod")) {
-            return ResponseEntity.ok(service.getByPeriod(queryParams.get("byPeriod")));
+            return service.getByPeriod(queryParams.get("byPeriod"));
         }
         if (queryParams.containsKey("finished")) {
-            return ResponseEntity.ok(service.getAllByFinished(Boolean.valueOf(queryParams.get("finished")), pageable));
+            return service.getAllByFinished(Boolean.valueOf(queryParams.get("finished")), pageable);
         }
-        return ResponseEntity.ok(service.getAll(queryParams));
+        return service.getAll(queryParams);
     }
 
     @PostMapping
-    ResponseEntity createShoppingCart(@RequestBody ShoppingCart shoppingCartRequest, UriComponentsBuilder uriComponentsBuilder) {
+    public Mono<ResponseEntity<ShoppingCart>> createShoppingCart(@RequestBody ShoppingCart shoppingCartRequest, UriComponentsBuilder uriComponentsBuilder) {
         LOGGER.info("createShoppingCart: body= " + shoppingCartRequest);
-        ShoppingCart shoppingCart = service.create(shoppingCartRequest);
-        URI uri = uriComponentsBuilder.path("/api/shopping-carts/{id}").buildAndExpand(shoppingCart.id()).toUri();
-        return ResponseEntity.created(uri).body(shoppingCart);
+
+        return service.create(shoppingCartRequest)
+                .map(shoppingCart -> {
+                    URI uri = uriComponentsBuilder.path("/api/shopping-carts/{id}").buildAndExpand(shoppingCart.id()).toUri();
+                   return ResponseEntity.created(uri).body(shoppingCart);
+                });
     }
 
     @PutMapping("{id}")
-    ResponseEntity updateShoppingCart(@PathVariable long id, @RequestBody ShoppingCart shoppingCart) {
+    public Mono<ResponseEntity<ShoppingCart>> updateShoppingCart(@PathVariable long id, @RequestBody ShoppingCart shoppingCart) {
         LOGGER.info("updateShoppingCart: id= " + id);
         LOGGER.info("updateShoppingCart: body= " + shoppingCart);
-        Optional<ShoppingCart> shoppingCartOptional = service.update(id, shoppingCart);
-        if (shoppingCartOptional.isPresent()) {
-            return ResponseEntity.ok(shoppingCartOptional.get());
-        }
-        return ResponseEntity.notFound().build();
+
+        return service.update(id, shoppingCart)
+                .map(ResponseEntity::ok)
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
 
     @DeleteMapping("{id}")
-    ResponseEntity deleteShoppingCart(@PathVariable long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> deleteShoppingCart(@PathVariable long id) {
         LOGGER.info("deleteShoppingCart: id= {}", id);
-        service.delete(id);
-        return ResponseEntity.ok().build();
+
+        return service.delete(id);
     }
 
     @GetMapping("/total-spent-by-year/{year}")
-    ResponseEntity getTotalSpentByYear(@PathVariable("year") long year) {
+    public Flux<TotalSpentByMonthReport> getTotalSpentByYear(@PathVariable("year") long year) {
         LOGGER.info("getTotalSpentByYear: {}", year);
-        return ResponseEntity.ok(reportsService.getTotalSpentByMonthOnYear(year));
+        return reportsService.getTotalSpentByMonthOnYear(year);
     }
 
     @GetMapping("/products-trend-by-year/{year}")
-    ResponseEntity getProductsTrendByYear(@PathVariable("year") long year) {
+    public Flux<ProductPriceTrendReport> getProductsTrendByYear(@PathVariable("year") long year) {
         LOGGER.info("getProductsTrendByYear: {}", year);
-        return ResponseEntity.ok(reportsService.getProductsPriceTrends(year));
+        return reportsService.getProductsPriceTrends(year);
     }
 }

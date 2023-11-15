@@ -5,8 +5,7 @@ import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pt.bmo.list4u.api.shoppinglist.model.report.TotalSpentByMonthReport;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
 
 @Repository
 public interface ReportsTotalSpentByMonthRepository extends R2dbcRepository<TotalSpentByMonthReport, Long> {
@@ -18,6 +17,6 @@ public interface ReportsTotalSpentByMonthRepository extends R2dbcRepository<Tota
             " inner join shopping_cart sc on (sci.shopping_cart_id = sc.id)\n" +
             " where extract(year from sc.created_at) = :year \n" +
             " group by extract(month from sc.created_at)")
-    List<TotalSpentByMonthReport> getTotalSpentByMonthOnYear(@Param("year") long year);
+    Flux<TotalSpentByMonthReport> getTotalSpentByMonthOnYear(@Param("year") long year);
 
 }

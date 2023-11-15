@@ -1,59 +1,57 @@
 package pt.bmo.list4u.api.shoppinglist.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import pt.bmo.list4u.api.shoppinglist.mapper.ProductMapper;
 import pt.bmo.list4u.api.shoppinglist.model.Product;
 import pt.bmo.list4u.api.shoppinglist.repository.ProductRepository;
 import pt.bmo.list4u.api.shoppinglist.service.ProductService;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.math.BigInteger;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Locale;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
-//    @Autowired
-//    public ProductRepository repository;
+    @Autowired
+    public ProductRepository repository;
 
-    public Optional<Product> getById(Long id) {
-//        return repository.findById(id);
-        return Optional.empty();
+    public Mono<Product> getById(Long id) {
+        return repository.findById(id)
+                .map(ProductMapper.INSTANCE::entityToDomain)
+                .log();
     }
 
     @Override
-    public List<Product> getAll() {
-//        int pageNum = 0;
-//        List<Product> productList = new ArrayList<>();
-//
-//        Page<Product> productPage = repository.findAll(Pageable.ofSize(100).withPage(pageNum));
-//
-//        while(productPage.hasContent()) {
-//            List<Product> productListCollect = productPage.get().collect(Collectors.toList());
-//            productList.addAll(productListCollect);
-//            pageNum++;
-//            productPage = repository.findAll(Pageable.ofSize(100).withPage(pageNum));
-//        }
-//
-//        return productList;
-        return null;
+    public Flux<Product> getAll() {
+        return repository.findAll()
+                .map(ProductMapper.INSTANCE::entityToDomain)
+                .log();
     }
 
     @Override
-    public Product create(Product product) {
-//        return repository.save(prepareProduct(product));
-        return null;
+    public Mono<Product> create(Product product) {
+        return repository.save(ProductMapper.INSTANCE.domainToEntity(prepareProduct(product)))
+                .map(ProductMapper.INSTANCE::entityToDomain)
+                .log();
     }
 
     @Override
-    public Optional<Product> update(Long id, Product product) {
-//        if (repository.findById(id).isPresent()) {
-//            product.setId(id);
-//            return Optional.of(repository.save(prepareProduct(product)));
-//        }
-        return Optional.empty();
+    public Mono<Product> update(Long id, Product product) {
+        return repository.findById(id)
+                .flatMap(productFound -> {
+                    productFound.setName(product.name());
+                    return repository.save(productFound);
+                })
+                .map(ProductMapper.INSTANCE::entityToDomain)
+                .log();
+    }
+    private Product prepareProduct(Product product) {
+        return Product.builder()
+                .id(product.id())
+                .name(product.name().toUpperCase(Locale.ROOT))
+                .build();
     }
 
 }

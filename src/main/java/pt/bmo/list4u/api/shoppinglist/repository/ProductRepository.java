@@ -1,12 +1,11 @@
 package pt.bmo.list4u.api.shoppinglist.repository;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.stereotype.Repository;
-import pt.bmo.list4u.api.shoppinglist.model.Product;
-
-import java.util.Optional;
+import pt.bmo.list4u.api.shoppinglist.entity.ProductEntity;
+import reactor.core.publisher.Mono;
 
 @Repository
-public interface ProductRepository extends PagingAndSortingRepository<Product, Long> {
-    Optional<Product> findByName(String name);
+public interface ProductRepository extends R2dbcRepository<ProductEntity, Long> {
+    Mono<ProductEntity> findByName(String name);
 }
