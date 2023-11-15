@@ -9,13 +9,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
+import pt.bmo.list4u.api.shoppinglist.entity.ItemCartEntity;
+import pt.bmo.list4u.api.shoppinglist.mapper.ItemCartMapper;
 import pt.bmo.list4u.api.shoppinglist.model.ItemCart;
 import pt.bmo.list4u.api.shoppinglist.model.Product;
 import pt.bmo.list4u.api.shoppinglist.repository.ItemCartRepository;
 import pt.bmo.list4u.api.shoppinglist.utils.FakeValues;
-
-import java.util.HashMap;
-import java.util.Optional;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,7 +34,7 @@ class ItemCartServiceImplTest {
     private Pageable pageable;
 
     @Captor
-    private ArgumentCaptor<ItemCart> itemCartArgumentCaptor;
+    private ArgumentCaptor<ItemCartEntity> itemCartArgumentCaptor;
 
     private ItemCart create() {
         Product product = new Product(FakeValues.FAKE_LONG, FakeValues.FAKE_STR);
@@ -42,61 +43,78 @@ class ItemCartServiceImplTest {
 
     @Test
     void when_get_by_id_then_return_item_cart() {
-//        ItemCart itemCart = create();
-//        Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.of(itemCart));
-//
-//        Optional<ItemCart> itemCartOptional = service.getById(FakeValues.FAKE_LONG);
-//
-//        assertTrue(itemCartOptional.isPresent());
+        final ItemCart itemCart = create();
+        Mockito.when(repository.findById(Mockito.anyLong()))
+                .thenReturn(Mono.just(ItemCartMapper.INSTANCE.domainToEntity(itemCart)));
+
+        var itemCartMono = service.getById(FakeValues.FAKE_LONG);
+
+        StepVerifier.create(itemCartMono)
+                .assertNext(itemCartFound -> {
+                    assertEquals(itemCartFound, itemCart);
+                });
     }
 
     @Test
     void when_get_by_inexistent_id_then_return_empty() {
-//        Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
-//        Optional<ItemCart> itemCartOptional = service.getById(FakeValues.FAKE_LONG);
-//
-//        assertTrue(itemCartOptional.isEmpty());
-    }
+        Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Mono.empty());
+        var itemCartMono = service.getById(FakeValues.FAKE_LONG);
 
-    @Test
-    void when_get_all_and_method_not_implemented_then_return_empty() {
-//        Optional<ItemCart> optionalItemCart = service.getAll(new HashMap<String, String>());
-//
-//        assertTrue(optionalItemCart.isEmpty());
+        StepVerifier.create(itemCartMono)
+                .expectNextCount(0)
+                .verifyComplete();
     }
 
     @Test
     void when_create_item_cart_then_verify_repository_save() {
-//        ItemCart itemCart = create();
-//        Mockito.when(repository.save(Mockito.any())).thenReturn(itemCart);
-//
-//        ItemCart itemCartCreated = service.create(itemCart);
-//        Mockito.verify(repository).save(itemCartArgumentCaptor.capture());
-//
-//        ItemCart itemCartArgumentCaptorValue = itemCartArgumentCaptor.getValue();
-//
-//        assertEquals(itemCartCreated, itemCartArgumentCaptorValue);
+        final ItemCart itemCart = create();
+        Mockito.when(repository.save(Mockito.any()))
+                .thenReturn(Mono.just(ItemCartMapper.INSTANCE.domainToEntity(itemCart)));
+
+        var itemCartMono = service.create(itemCart);
+
+        Mockito.verify(repository).save(itemCartArgumentCaptor.capture());
+        ItemCartEntity itemCartArgumentCaptorValue = itemCartArgumentCaptor.getValue();
+
+        StepVerifier.create(itemCartMono)
+                .assertNext(itemCartCreated -> {
+                    assertEquals(itemCartArgumentCaptorValue, itemCartCreated);
+                });
     }
 
     @Test
     void when_update_existent_item_cart_then_verify_repository_save() {
-//        ItemCart itemCart = create();
-//        Mockito.when(repository.findById(FakeValues.FAKE_LONG)).thenReturn(Optional.of(itemCart));
-//        Mockito.when(repository.save(Mockito.any())).thenReturn(itemCart);
-//
-//        Optional<ItemCart> updatedItemCart = service.update(itemCart);
-//        Mockito.verify(repository).save(itemCartArgumentCaptor.capture());
-//
-//        assertTrue(updatedItemCart.isPresent());
-//        assertEquals(updatedItemCart.get(), itemCartArgumentCaptor.getValue());
+        final ItemCart itemCart = create();
+        final var itemCartToUpdate = ItemCart.builder()
+                .price(5)
+                .quantity(2)
+                .picked(true)
+                .product(Product.builder().id(2).build())
+                .build();
+
+        Mockito.when(repository.findById(Mockito.anyLong()))
+                .thenReturn(Mono.just(ItemCartMapper.INSTANCE.domainToEntity(itemCart)));
+
+        var itemCartMono = service.update(itemCartToUpdate.id(), itemCart);
+
+        StepVerifier.create(itemCartMono)
+                .assertNext(itemCartUpdated -> {
+                    assertEquals(5, itemCartUpdated.price());
+                    assertEquals(2, itemCartUpdated.price());
+                    assertTrue(itemCartUpdated.picked());
+                    assertEquals(2, itemCartUpdated.product().id());
+                });
     }
 
     @Test
     void when_update_inexistent_item_cart_then_return_optional_of_empty() {
-//        ItemCart itemCart = create();
-//        Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
-//
-//        Optional<ItemCart> optionalItemCart = service.update(itemCart);
-//        assertTrue(optionalItemCart.isEmpty());
+        final var itemCart = create();
+        Mockito.when(repository.findById(Mockito.anyLong())).thenReturn(Mono.empty());
+
+        var itemCartMono = service.update(itemCart.id(), itemCart);
+
+        StepVerifier.create(itemCartMono)
+                .expectNextCount(0)
+                .verifyComplete();
     }
 }
