@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -122,13 +123,14 @@ class SupermarketServiceImplTest {
     @Test
     void when_update_existent_supermarket_then_return_it() {
         final Supermarket supermarket = create();
+        final SupermarketEntity supermarketEntity = SupermarketMapper.INSTANCE.domainToEntity(supermarket);
         final Supermarket supermarketToUpdate = Supermarket.builder()
                 .name("TEST")
                 .country(Country.IRELAND)
                 .build();
 
         Mockito.when(repository.findById(Mockito.anyLong()))
-                .thenReturn(Mono.just(SupermarketMapper.INSTANCE.domainToEntity(supermarket)));
+                .thenReturn(Mono.just(supermarketEntity));
 
         var supermarketMono = service.update(1l, supermarketToUpdate);
 

@@ -15,8 +15,11 @@ import pt.bmo.list4u.api.shoppinglist.mapper.ProductMapper;
 import pt.bmo.list4u.api.shoppinglist.model.Product;
 import pt.bmo.list4u.api.shoppinglist.repository.ProductRepository;
 import pt.bmo.list4u.api.shoppinglist.utils.FakeValues;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -117,6 +120,24 @@ class ProductServiceImplTest {
 
         StepVerifier.create(productMono)
                 .expectNextCount(0)
+                .verifyComplete();
+    }
+
+    @Test
+    void when_get_all_then_return_flux_of_products() {
+        var productsList = List.of(
+            ProductMapper.INSTANCE.domainToEntity(Product.builder()
+                .id(FakeValues.FAKE_LONG)
+                .name("TEST")
+                .build())
+        );
+
+        when(repository.findAll()).thenReturn(Flux.fromIterable(productsList));
+
+        var productFlux = service.getAll();
+
+        StepVerifier.create(productFlux)
+                .expectNextCount(1)
                 .verifyComplete();
     }
 }
