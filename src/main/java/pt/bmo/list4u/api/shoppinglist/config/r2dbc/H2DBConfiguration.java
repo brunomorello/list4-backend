@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import reactor.core.publisher.Mono;
 
@@ -21,12 +22,13 @@ import java.nio.charset.StandardCharsets;
 
 @Configuration
 @Profile("test")
+@EnableR2dbcRepositories
 @RequiredArgsConstructor
 public class H2DBConfiguration extends AbstractR2dbcConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(H2DBConfiguration.class);
 
-    @Bean
+    @Bean("h2ConnectionFactoryBean")
     @Override
     public ConnectionFactory connectionFactory() {
         return new H2ConnectionFactory(

@@ -1,112 +1,134 @@
 package pt.bmo.list4u.api.shoppinglist.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import pt.bmo.list4u.api.shoppinglist.model.Product;
-import pt.bmo.list4u.api.shoppinglist.repository.ProductRepository;
+import pt.bmo.list4u.api.shoppinglist.service.ProductService;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static pt.bmo.list4u.api.shoppinglist.utils.FakeValues.FAKE_STR;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
+@WebFluxTest(controllers = ProductController.class)
+@AutoConfigureWebTestClient
 class ProductControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private WebTestClient webTestClient;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockBean
+    private ProductService productService;
 
-    @Autowired
-    private ProductRepository productRepository;
-
-    private static final String BASE_URL = "/api/products/";
-
-    private Product product;
-
-    @BeforeEach
-    void setup() {
-//        product = new Product("Product Test");
-//        productRepository.save(product);
-    }
+    private static final String BASE_URL = "/api/products";
 
     @Test
     void should_find_product_by_id() throws Exception {
-//        this.mockMvc.perform(get(BASE_URL + product.id())).andDo(print()).andExpect(status().isOk());
+        final Product product = Product.builder()
+                .id(1)
+                .name(FAKE_STR)
+                .build();
+
+        Mockito.when(productService.getById(Mockito.anyLong())).thenReturn(Mono.just(product));
+
+        webTestClient.get()
+                .uri(BASE_URL + "/{id}", 1)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.name")
+                .isEqualTo(FAKE_STR);
     }
 
     @Test
     void when_id_inexistent_then_return_not_found() throws Exception {
-//        this.mockMvc.perform(get(BASE_URL + "32312")).andExpect(status().isNotFound());
+        Mockito.when(productService.getById(Mockito.anyLong())).thenReturn(Mono.empty());
+
+        webTestClient.get()
+                .uri(BASE_URL + "/{id}", 1)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
     }
 
     @Test
     void should_get_all_products() throws Exception {
-//        MvcResult mvcResult = this.mockMvc.perform(get(BASE_URL)).andDo(print()).andExpect(status().isOk()).andReturn();
-//        List<Product> product = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), List.class);
-//
-//        assertFalse(product.isEmpty());
+        var productList = List.of(
+            Product.builder().id(1).name(FAKE_STR).build(),
+            Product.builder().id(2).name(FAKE_STR).build()
+        );
+
+        Mockito.when(productService.getAll()).thenReturn(Flux.fromIterable(productList));
+
+        webTestClient.get()
+                .uri(BASE_URL)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBodyList(Product.class)
+                .hasSize(2);
     }
 
     @Test
     void should_create_a_new_product() throws Exception {
-//        Product product = new Product(1,"Beer");
-//
-//        this.mockMvc.perform(post(BASE_URL)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(objectMapper.writeValueAsString(product))
-//        ).andExpect(status().isCreated());
-//
-//        Optional<Product> productFound = productRepository.findByName(product.name().toUpperCase(Locale.ROOT));
-//        assertTrue(productFound.isPresent());
-//        assertEquals(productFound.get().name(), product.name().toUpperCase(Locale.ROOT));
-//        assertNotEquals(1, productFound.get().id());
+        final Product product = new Product(1,"Beer");
+
+        Mockito.when(productService.create(Mockito.any())).thenReturn(Mono.just(product));
+
+        webTestClient.post()
+                .uri(BASE_URL)
+                .bodyValue(product)
+                .exchange()
+                .expectStatus()
+                .isCreated()
+                .expectBody(Product.class)
+                .consumeWith(productEntityExchangeResult -> {
+                    var responseBody = productEntityExchangeResult.getResponseBody();
+                    assertEquals(1, responseBody.id());
+                    assertEquals("Beer", responseBody.name());
+                });
     }
 
     @Test
     void should_update_a_product() throws Exception {
-//        this.product.setName("Product Test");
+        final Product product = new Product(1,"Beer");
 
-//        MvcResult mvcResult = this.mockMvc.perform(put(BASE_URL + this.product.id())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(objectMapper.writeValueAsString(product))
-//        ).andExpect(status().isOk()).andReturn();
-//
-//        Product productUpdated = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Product.class);
-//
-//        assertEquals(product.id(), productUpdated.id());
-//        assertEquals(product.name().toUpperCase(Locale.ROOT), productUpdated.name());
+        Mockito.when(productService.update(Mockito.anyLong(), Mockito.any())).thenReturn(Mono.just(product));
+
+        webTestClient.put()
+                .uri(BASE_URL + "/{id}", 1)
+                .bodyValue(product)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(Product.class)
+                .consumeWith(productEntityExchangeResult -> {
+                    var responseBody = productEntityExchangeResult.getResponseBody();
+                    assertEquals(1, responseBody.id());
+                    assertEquals("Beer", responseBody.name());
+                });
     }
 
     @Test
     void when_update_a_product_with_inexistent_id_then_return_not_found() throws Exception {
-//        Product product = new Product(1, "Product Test");
-//
-//        this.mockMvc.perform(put(BASE_URL + "1232131")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(this.objectMapper.writeValueAsString(product)))
-//                .andExpect(status().isNotFound());
+        final Product product = new Product(1, "Product Test");
+
+        Mockito.when(productService.update(Mockito.anyLong(), Mockito.any())).thenReturn(Mono.empty());
+
+        webTestClient.put()
+                .uri(BASE_URL + "/{id}", 1)
+                .bodyValue(product)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
     }
 
 }

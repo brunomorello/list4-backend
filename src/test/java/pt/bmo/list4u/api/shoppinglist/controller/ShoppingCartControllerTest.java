@@ -1,74 +1,49 @@
 package pt.bmo.list4u.api.shoppinglist.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.util.MultiValueMapAdapter;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import pt.bmo.list4u.api.shoppinglist.model.Country;
 import pt.bmo.list4u.api.shoppinglist.model.ItemCart;
 import pt.bmo.list4u.api.shoppinglist.model.Product;
 import pt.bmo.list4u.api.shoppinglist.model.ShoppingCart;
 import pt.bmo.list4u.api.shoppinglist.model.Supermarket;
-import pt.bmo.list4u.api.shoppinglist.repository.ItemCartRepository;
-import pt.bmo.list4u.api.shoppinglist.repository.ProductRepository;
-import pt.bmo.list4u.api.shoppinglist.repository.ShoppingCartRepository;
-import pt.bmo.list4u.api.shoppinglist.repository.SupermarketRepository;
+import pt.bmo.list4u.api.shoppinglist.service.ShoppingCartReportsService;
+import pt.bmo.list4u.api.shoppinglist.service.ShoppingCartService;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static pt.bmo.list4u.api.shoppinglist.utils.FakeValues.FAKE_DOUBLE;
 import static pt.bmo.list4u.api.shoppinglist.utils.FakeValues.FAKE_LONG;
 import static pt.bmo.list4u.api.shoppinglist.utils.FakeValues.FAKE_STR;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
+@WebFluxTest(controllers = ShoppingCartController.class)
+@AutoConfigureWebTestClient
 class ShoppingCartControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private WebTestClient webTestClient;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockBean
+    private ShoppingCartService service;
 
-    @Autowired
-    private ShoppingCartRepository shoppingCartRepository;
+    @MockBean
+    private ShoppingCartReportsService reportsService;
 
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private SupermarketRepository supermarketRepository;
-
-    @Autowired
-    private ItemCartRepository itemCartRepository;
-
-    private static final String BASE_URL = "/api/shopping-carts/";
+    private static final String BASE_URL = "/api/shopping-carts";
 
     private ShoppingCart shoppingCart;
 
@@ -78,89 +53,131 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    void should_find_shopping_cart_by_id() throws Exception {
-//        MvcResult mvcResult = this.mockMvc.perform(get(BASE_URL + this.shoppingCart.id())).andExpect(status().isOk()).andReturn();
-//        ShoppingCart shoppingCartFound = this.objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ShoppingCart.class);
-//
-//        assertEquals(FAKE_STR, shoppingCartFound.name());
-//        assertFalse(shoppingCartFound.items().isEmpty());
+    void should_find_shopping_cart_by_id() {
+        Mockito.when(service.getById(Mockito.anyLong())).thenReturn(Mono.just(this.shoppingCart));
+
+        webTestClient.get()
+                .uri(BASE_URL + "/{id}", 1)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.name")
+                .isEqualTo(FAKE_STR);
     }
 
     @Test
-    void should_retrieve_all_shopping_carts() throws Exception {
-//        this.mockMvc.perform(get(BASE_URL)).andExpect(status().isOk());
+    void should_retrieve_all_shopping_carts() {
+        var shoppingCartList = List.of(createShoppingCart());
+
+        Mockito.when(service.getAll(Mockito.anyMap())).thenReturn(Flux.fromIterable(shoppingCartList));
+
+        webTestClient.get()
+                .uri(BASE_URL)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBodyList(ShoppingCart.class)
+                .hasSize(1);
     }
 
     @Test
-    void should_retrieve_finished_shopping_carts_using_query_params() throws Exception {
-//        Map<String, String> queryParams = new HashMap<>();
-//        MultiValueMapAdapter queryParamsMap = new MultiValueMapAdapter(queryParams);
-//        queryParamsMap.add("finished", "true");
-//
-//        this.mockMvc.perform(get(BASE_URL).queryParams(queryParamsMap))
-//                .andDo(print())
-//                .andExpect(status().isOk());
+    void should_retrieve_finished_shopping_carts_using_query_params() {
+        URI uri = UriComponentsBuilder.fromUriString(BASE_URL)
+                .queryParam("finished", "true")
+                .buildAndExpand()
+                .toUri();
+
+        var shoppingCartList = List.of(createShoppingCart());
+
+        Mockito.when(service.getAllByFinished(Mockito.anyBoolean(), Mockito.any())).thenReturn(Flux.fromIterable(shoppingCartList));
+
+        webTestClient.get()
+                .uri(uri)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBodyList(ShoppingCart.class)
+                .hasSize(1);
     }
 
     @Test
-    void should_retrieve_shopping_carts_by_period_using_query_params() throws Exception {
-//        MultiValueMapAdapter queryParamsMap = new MultiValueMapAdapter(new HashMap<String, String >());
-//        queryParamsMap.add("byPeriod", "2023-07-20,2023-07-29");
+    void should_retrieve_shopping_carts_by_period_using_query_params() {
+
+        URI uri = UriComponentsBuilder.fromUriString(BASE_URL)
+                .queryParam("byPeriod", "2023-07-20,2023-07-29")
+                .buildAndExpand()
+                .toUri();
+
+        var shoppingCartList = List.of(createShoppingCart());
+
+        Mockito.when(service.getByPeriod(Mockito.any(), Mockito.any())).thenReturn(Flux.fromIterable(shoppingCartList));
+
+        webTestClient.get()
+                .uri(uri)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBodyList(ShoppingCart.class);
     }
 
     @Test
-    void should_create_shopping_cart() throws Exception {
-//        String shoppingCartPayload = new ObjectMapper()
-//                .registerModule(new JavaTimeModule())
-//                .writeValueAsString(shoppingCart);
-//
-//        this.mockMvc.perform(
-//                post(BASE_URL)
-//                        .content(shoppingCartPayload)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//        ).andDo(print()).andExpect(status().isCreated());
+    void should_create_shopping_cart() {
+        Mockito.when(service.create(Mockito.any())).thenReturn(Mono.just(createShoppingCart()));
+
+        webTestClient.post()
+                .uri(BASE_URL)
+                .bodyValue(createShoppingCart())
+                .exchange()
+                .expectStatus()
+                .isCreated()
+                .expectBody()
+                .jsonPath("$.name")
+                .isEqualTo(FAKE_STR);
     }
 
     @Test
-    void should_update_shopping_cart_name() throws Exception {
-//        String payload = new ObjectMapper().registerModule(new JavaTimeModule())
-//                .writeValueAsString(shoppingCart);
-//
-//        this.mockMvc.perform(
-//                put(BASE_URL + shoppingCart.id())
-//                        .content(payload)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//        ).andExpect(status().isOk());
+    void should_update_shopping_cart_name() {
+        Mockito.when(service.update(Mockito.anyLong(), Mockito.any())).thenReturn(Mono.just(createShoppingCart()));
+
+        webTestClient.put()
+                .uri(BASE_URL + "/{id}", 1)
+                .bodyValue(createShoppingCart())
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(ShoppingCart.class)
+                .consumeWith(shoppingCartEntityExchangeResult -> {
+                    var responseBody = shoppingCartEntityExchangeResult.getResponseBody();
+                    assertEquals(FAKE_STR, responseBody.name());
+                    assertFalse(responseBody.finished());
+                });
     }
 
     @Test
-    void should_remove_a_item_from_cart() throws Exception {
-//        ShoppingCart shoppingCart = createShoppingCart();
-////        shoppingCart.items(Collections.emptyList());
-//
-//        MvcResult mvcResult = this.mockMvc.perform(put(BASE_URL + shoppingCart.id())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(this.objectMapper.writeValueAsString(shoppingCart)))
-//                .andExpect(status().isOk())
-//                .andReturn();
-//
-//        ShoppingCart shoppingCartUpdated = this.objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ShoppingCart.class);
-//
-//        assertTrue(shoppingCartUpdated.items().isEmpty());
+    void when_update_with_id_inexistent_then_return_not_found() {
+        var shoppingCart = createShoppingCart();
+
+        Mockito.when(service.update(Mockito.anyLong(), Mockito.any())).thenReturn(Mono.empty());
+
+        webTestClient.put()
+                .uri(BASE_URL + "/{id}", 1)
+                .bodyValue(shoppingCart)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+
     }
 
     @Test
-    void when_id_is_inexistent_then_return_not_found() throws Exception {
-//        this.mockMvc.perform(put(BASE_URL + 3123131)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(this.objectMapper.writeValueAsString(shoppingCart)))
-//                .andExpect(status().isNotFound());
-    }
+    void should_delete_a_shopping_cart() {
+        Mockito.when(service.delete(Mockito.anyLong())).thenReturn(Mono.empty());
 
-    @Test
-    void should_delete_a_shopping_cart() throws Exception {
-//        this.mockMvc.perform(delete(BASE_URL + shoppingCart.id()))
-//                .andExpect(status().isOk());
+        webTestClient.delete()
+                .uri(BASE_URL + "/{id}", 1)
+                .exchange()
+                .expectStatus()
+                .isNoContent();
     }
 
     private ShoppingCart createShoppingCart() {
@@ -172,7 +189,6 @@ class ShoppingCartControllerTest {
         List<ItemCart> items = Arrays.asList(itemCart);
 
         ShoppingCart shoppingCart = new ShoppingCart(FAKE_LONG, FAKE_STR, items, false, supermarket, LocalDateTime.now());
-//        shoppingCartRepository.save(shoppingCart);
 
         return shoppingCart;
     }
